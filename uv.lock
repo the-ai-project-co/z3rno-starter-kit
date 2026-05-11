@@ -649,7 +649,7 @@ wheels = [
 
 [[package]]
 name = "z3rno"
-version = "0.3.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx", extra = ["http2"] },
@@ -657,9 +657,9 @@ dependencies = [
     { name = "structlog" },
     { name = "tenacity" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0f/c0/b6dc0d5173ceb1ed2ad770b63461118551fa9b0764044e60f7032f6ff3a1/z3rno-0.3.0.tar.gz", hash = "sha256:f526bf00c6abbbf89ed34b8b8714f28104a178d9808549a69a507bd481ed67c4", size = 371985, upload-time = "2026-05-11T06:39:31.555Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/e0/fc730cf4e929162c03dc34134e7c80f29a3d7338e18a070c709d38fb5790/z3rno-0.4.0.tar.gz", hash = "sha256:de7f24b29d05aa93023096b26b8f6d4ccb4c4da97ace54400a554a6b1c76ef2a", size = 374889, upload-time = "2026-05-11T10:46:01.013Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/d0/ce2a5b1d6ae8999de392475100305dbd94105d181c1b4bcc6da34f789750/z3rno-0.3.0-py3-none-any.whl", hash = "sha256:83399b69205e6a0be3266b93df6725600a87b6b830bf67c7604b55de706ba056", size = 28626, upload-time = "2026-05-11T06:39:30.341Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/0f/34ffbaaadad59039487fd288f679a337ed66950bd40e5387346ae957f27e/z3rno-0.4.0-py3-none-any.whl", hash = "sha256:5f4bd2268a43754d6c8a1cea68c06a0cd2e1f88ad56d5d1c5c9aa05c9bc53340", size = 30500, upload-time = "2026-05-11T10:45:59.628Z" },
 ]
 
 [[package]]
@@ -667,7 +667,6 @@ name = "z3rno-starter-kit"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "httpx" },
     { name = "z3rno" },
 ]
 
@@ -679,10 +678,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.27.0" },
-    { name = "z3rno", specifier = ">=0.3.0" },
-]
+requires-dist = [{ name = "z3rno", specifier = ">=0.4.0" }]
 
 [package.metadata.requires-dev]
 dev = [

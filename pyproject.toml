@@ -24,8 +24,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "z3rno>=0.3.0",
-  "httpx>=0.27.0",
+  "z3rno>=0.4.0",
 ]
 
 [dependency-groups]
