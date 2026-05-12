@@ -27,12 +27,22 @@ BOB = "bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb"
 
 
 def _store_ticket(client: Z3rnoClient, user_id: str, body: str, ticket: str) -> None:
+    # NOTE: user_id is also stamped into metadata so the per-user filter
+    # on recall can scope by it. The server's ``recall(filters=…)`` is a
+    # metadata JSONB-containment filter — the top-level
+    # ``memories.user_id`` column is recorded for audit / RLS purposes
+    # but isn't yet a recall predicate (v0.21 candidate). Until then,
+    # mirror the user_id into metadata at store time.
     client.store(
         agent_id=AGENT_ID,
         user_id=user_id,
         content=body,
         memory_type="episodic",
-        metadata={"kind": "support_ticket", "ticket_id": ticket},
+        metadata={
+            "kind": "support_ticket",
+            "ticket_id": ticket,
+            "user_id": user_id,
+        },
     )
 
 
@@ -51,11 +61,15 @@ def main() -> None:
     incoming = "I'm having issues with the dashboard again."
     print(f"ALICE: {incoming}")
 
+    # Pull the keyword for LEXICAL; long natural-language queries get
+    # tokenised loosely and miss exact-keyword tickets.
+    keyword = "dashboard"
+
     # Filter to *only* this user's history. The server enforces RLS by
-    # org_id; the user_id filter narrows further inside the tenant.
+    # org_id; the metadata filter narrows further inside the tenant.
     response = client.recall(
         agent_id=AGENT_ID,
-        query=incoming,
+        query=keyword,
         top_k=3,
         filters={"user_id": ALICE},
         strategy="LEXICAL",  # ticket bodies are keyword-rich; lexical excels
