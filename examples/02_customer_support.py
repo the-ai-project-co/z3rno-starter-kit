@@ -4,7 +4,9 @@ Each user message is stored under a ``user_id`` tag so the support
 agent can surface that user's prior tickets — *and only that user's
 tickets* — on the next contact. Demonstrates:
 
-  * per-user filtering via ``filters`` on ``recall``
+  * per-user filtering via ``recall(user_id=...)`` — the
+    ``memories.user_id`` column is a real WHERE predicate as of
+    v0.21 (z3rno-server ≥ 0.21.0, SDK ≥ 0.8.0)
   * pinning the ``LEXICAL`` strategy when the query is an exact-ish
     keyword lookup (ticket numbers, product SKUs)
   * ``forget`` for GDPR right-to-be-forgotten
@@ -27,22 +29,12 @@ BOB = "bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb"
 
 
 def _store_ticket(client: Z3rnoClient, user_id: str, body: str, ticket: str) -> None:
-    # NOTE: user_id is also stamped into metadata so the per-user filter
-    # on recall can scope by it. The server's ``recall(filters=…)`` is a
-    # metadata JSONB-containment filter — the top-level
-    # ``memories.user_id`` column is recorded for audit / RLS purposes
-    # but isn't yet a recall predicate (v0.21 candidate). Until then,
-    # mirror the user_id into metadata at store time.
     client.store(
         agent_id=AGENT_ID,
         user_id=user_id,
         content=body,
         memory_type="episodic",
-        metadata={
-            "kind": "support_ticket",
-            "ticket_id": ticket,
-            "user_id": user_id,
-        },
+        metadata={"kind": "support_ticket", "ticket_id": ticket},
     )
 
 
@@ -71,7 +63,7 @@ def main() -> None:
         agent_id=AGENT_ID,
         query=keyword,
         top_k=3,
-        filters={"user_id": ALICE},
+        user_id=ALICE,
         strategy="LEXICAL",  # ticket bodies are keyword-rich; lexical excels
     )
     print(f"\nFound {len(response.results)} matching ticket(s) for Alice "
@@ -86,7 +78,7 @@ def main() -> None:
         agent_id=AGENT_ID,
         query="pricing tier mobile",
         top_k=3,
-        filters={"user_id": ALICE},
+        user_id=ALICE,
         strategy="LEXICAL",
     )
     print(f"\nAlice asking about 'pricing tier mobile' → {len(cross_check.results)} hit(s) "
@@ -95,7 +87,7 @@ def main() -> None:
     # --- GDPR: Bob exercises his right to be forgotten ----------------------
     # In practice you'd page through his memories first; this is the spirit.
     print("\nBob exercises right-to-be-forgotten (cascade)...")
-    bob_history = client.recall(agent_id=AGENT_ID, query="*", top_k=10, filters={"user_id": BOB})
+    bob_history = client.recall(agent_id=AGENT_ID, query="*", top_k=10, user_id=BOB)
     for r in bob_history.results:
         client.forget(
             agent_id=AGENT_ID,
